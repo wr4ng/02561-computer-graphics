@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>W04P03</title>
+  <script type="text/javascript" src="../MV.js"></script>
+  <script type="text/javascript" src="w04p03.js"></script>
+  <script id="wgsl" type="x-shader" src="w04p03.wgsl"></script>
+  <style>
+    body {
+      font-size: x-large;
+    }
+
+    .flex {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .center {
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="flex">
+    <canvas id="my-canvas" width="512" height="512">
+      Please use a browser that supports HTML5 canvas.
+    </canvas>
+    <div style="display: flex; flex-direction: column;">
+      <div class="flex center">
+        <button id="minus">Coarsen</button>
+        <button id="plus">Subdivide</button>
+        <p>Subdivision level: <span id="value">0</span></p>
+      </div>
+      <button id="toggle-animate">Animate</button>
+    </div>
+</body>
+
+</html>

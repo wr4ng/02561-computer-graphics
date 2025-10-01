@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>W02P02</title>
+  <script type="text/javascript" src="../MV.js"></script>
+  <script type="text/javascript" src="w02p02.js"></script>
+  <script id="wgsl" type="x-shader" src="w02p02.wgsl"></script>
+</head>
+
+<body>
+  Paint Color: 
+  <select id="color-select">
+    <option value=0>White</option>
+    <option value=1 selected>Black</option>
+    <option value=2>Red</option>
+    <option value=3>Green</option>
+    <option value=4>Blue</option>
+    <option value=5>Yellow</option>
+    <option value=6>Orange</option>
+    <option value=7>Cornflower</option>
+  </select>
+  <br>
+  <canvas id="my-canvas" width="512" height="512">
+    Please use a browser that supports HTML5 canvas.
+  </canvas>
+  <br>
+  <button id="clear-button">Clear Canvas</button>
+  <select id="clear-select">
+    <option value=0>White</option>
+    <option value=1>Black</option>
+    <option value=2>Red</option>
+    <option value=3>Green</option>
+    <option value=4>Blue</option>
+    <option value=5>Yellow</option>
+    <option value=6>Orange</option>
+    <option value=7 selected>Cornflower</option>
+  </select>
+</body>
+
+</html>

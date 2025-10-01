@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>W03P03</title>
+  <script type="text/javascript" src="../MV.js"></script>
+  <script type="text/javascript" src="w03p03.js"></script>
+  <script id="wgsl" type="x-shader" src="w03p03.wgsl"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="my-canvas" width="1024" height="512">
+    Please use a browser that supports HTML5 canvas.
+  </canvas>
+</body>
+<p>
+  Let \(\mathbf{C} = \mathrm{translate}(-0.5, -0.5, -0.5)\) be the matrix that centers the cube at the origin.
+  Then the three model matrices are
+  \[
+  \begin{align}
+    \mathbf{M}_1 &= \mathrm{translate}(0, 0, 4) \mathbf{C} \\
+    \mathbf{M}_2 &= \mathrm{translate}(2, 0, 4) \mathbf{C} \\
+    \mathbf{M}_3 &= \mathrm{translate}(-2, 0, 4)\ \mathrm{rotateY}(40)\ \mathrm{rotateX}(30)\ \mathbf{C} \\
+  \end{align}
+  \]
+  The view matrix is (looks from origin down the z-axis with y-axis up):
+  \[
+    \mathbf{V} = \mathrm{lookAt}(\mathbf{0}, \mathbf{i}, \mathbf{j})
+  \]
+  The projection matrix is a perspective projection with \(45^\circ\) field of view, aspect ratio \(2\) (1024x512 canvas), near plane \(0.1\) and far plane \(100\):
+  \[
+    \mathbf{P} = \mathrm{perspective}(45, 2, 0.1, 6)
+  \]
+  The model-view-projection matrices are then
+  \[
+    \mathbf{mvp}_i = \mathbf{M_{st}}\mathbf{P} \mathbf{V} \mathbf{M}_i \quad \text{for $i=1,2,3$}
+  \]
+
+</p>
+</html>
