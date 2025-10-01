@@ -1,63 +1,5 @@
 "use strict";
 
-function add_point(array, point, size) {
-    const offset = size / 2;
-    var point_coords = [vec2(point[0] - offset, point[1] - offset), vec2(point[0] + offset, point[1] - offset),
-    vec2(point[0] - offset, point[1] + offset), vec2(point[0] - offset, point[1] + offset),
-    vec2(point[0] + offset, point[1] - offset), vec2(point[0] + offset, point[1] + offset)];
-    array.push.apply(array, point_coords);
-}
-
-/**
- * 
- * @param {any[]} positions 
- * @param {Uint32Array} indices 
- */
-function subdivideSphere(positions, indices) {
-    const triangles = indices.length / 3;
-    let newIndices = [];
-    for (let i = 0; i < triangles; ++i) {
-        const i0 = indices[i * 3 + 0]
-        const i1 = indices[i * 3 + 1]
-        const i2 = indices[i * 3 + 2]
-        const c01 = positions.length;
-        const c12 = positions.length + 1;
-        const c20 = positions.length + 2;
-        positions.push(normalize(add(positions[i0], positions[i1])))
-        positions.push(normalize(add(positions[i1], positions[i2])))
-        positions.push(normalize(add(positions[i2], positions[i0])))
-        newIndices.push(i0, c01, c20, c20, c01, c12, c12, c01, i1, c20, c12, i2);
-    }
-    return newIndices;
-}
-
-function subdivideIndices(indices) {
-    const triangles = indices.length / 3;
-    let newIndices = [];
-    for (let i = 0; i < triangles; ++i) {
-        const i0 = indices[i * 3 + 0];
-        const i1 = indices[i * 3 + 1];
-        const i2 = indices[i * 3 + 2];
-        const c01 = triangles + i * 3 + 0;
-        const c12 = triangles + i * 3 + 1;
-        const c20 = triangles + i * 3 + 2;
-        newIndices.push(i0, c01, c20, c20, c01, c12, c12, c01, i1, c20, c12, i2);
-    }
-    return newIndices;
-}
-
-function courseIndices(indices) {
-    const triangles = indices.length / 12;
-    let newIndices = [];
-    for (let i = 0; i < triangles; ++i) {
-        let i0 = indices[i * 12 + 0];
-        let i1 = indices[i * 12 + 8];
-        let i2 = indices[i * 12 + 11];
-        newIndices.push(i0, i1, i2);
-    }
-    return newIndices;
-}
-
 async function main() {
     const gpu = navigator.gpu;
     const adapter = await gpu.requestAdapter();
@@ -70,52 +12,11 @@ async function main() {
         format: canvasFormat,
     });
 
-    const M_SQRT2 = Math.sqrt(2.0);
-    const M_SQRT6 = Math.sqrt(6.0);
-    let positions = [
-        vec3(0.0, 0.0, 1.0),
-        vec3(0.0, 2.0 * M_SQRT2 / 3.0, -1.0 / 3.0),
-        vec3(-M_SQRT6 / 3.0, -M_SQRT2 / 3.0, -1.0 / 3.0),
-        vec3(M_SQRT6 / 3.0, -M_SQRT2 / 3.0, -1.0 / 3.0),
-    ];
+    // Load model
+    const obj_filename = "unicorn.obj";
+    const obj = await readOBJFile(obj_filename, 1.0, true);
 
-    let indices = new Uint32Array([
-        0, 1, 2, // front
-        0, 3, 1, // right
-        1, 3, 2, // left
-        0, 2, 3, // bottom
-    ]);
-
-    const maxSubdivisions = 8;
-    const minSubdivisions = 0;
-    let subdivisions = 0;
-    let calculatedSubdivisions = subdivisions;
-    const valueText = document.getElementById('value');
-    valueText.textContent = subdivisions;
-
-    document.getElementById('plus').onclick = () => {
-        if (subdivisions < maxSubdivisions) {
-            subdivisions++;
-            valueText.textContent = subdivisions;
-            if (subdivisions > calculatedSubdivisions) {
-                indices = new Uint32Array(subdivideSphere(positions, indices));
-                calculatedSubdivisions++;
-            } else {
-                indices = new Uint32Array(subdivideIndices(indices));
-            }
-            requestAnimationFrame(render);
-        }
-    };
-    document.getElementById('minus').onclick = () => {
-        if (subdivisions > minSubdivisions) {
-            subdivisions--;
-            valueText.textContent = subdivisions;
-            indices = new Uint32Array(courseIndices(indices));
-            requestAnimationFrame(render);
-        }
-    };
-    valueText.textContent = subdivisions;
-
+    // Get lighting parameters
     const emittedRadianceSlider = document.getElementById('emitted-radiance');
     const ambientRadianceSlider = document.getElementById('ambient-radiance');
     const diffuseSlider = document.getElementById('diffuse');
@@ -158,24 +59,66 @@ async function main() {
         }
     };
 
-    // Create position buffer
+    // Position buffer
+    const positions = obj.vertices;
     const positionBuffer = device.createBuffer({
-        size: sizeof['vec3'] * 4 ** (maxSubdivisions + 1),
+        size: sizeof['vec4'] * positions.length,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     });
     const positionBufferLayout = {
-        arrayStride: sizeof['vec3'],
+        arrayStride: sizeof['vec4'],
         attributes: [{
-            format: 'float32x3',
+            format: 'float32x4',
             offset: 0,
             shaderLocation: 0, // Position, see vertex shader
         }],
     };
+    device.queue.writeBuffer(positionBuffer, 0, flatten(positions));
 
-    // Create index buffer
+    // Color buffer
+    const colors = obj.colors;
+    const colorBuffer = device.createBuffer({
+        size: sizeof['vec4'] * colors.length,
+        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+    const colorBufferLayout = {
+        arrayStride: sizeof['vec4'],
+        attributes: [{
+            format: 'float32x4',
+            offset: 0,
+            shaderLocation: 1, // Color, see vertex shader
+        }],
+    };
+    device.queue.writeBuffer(colorBuffer, 0, flatten(colors));
+
+    // Normal buffer
+    const normals = obj.normals;
+    const normalBuffer = device.createBuffer({
+        size: sizeof['vec4'] * normals.length,
+        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+    const normalBufferLayout = {
+        arrayStride: sizeof['vec4'],
+        attributes: [{
+            format: 'float32x4',
+            offset: 0,
+            shaderLocation: 2, // Normal, see vertex shader
+        }],
+    };
+    device.queue.writeBuffer(normalBuffer, 0, flatten(normals));
+
+    // Index buffer
+    const indices = obj.indices;
     const indicesBuffer = device.createBuffer({
-        size: sizeof['vec3'] * 4 ** (maxSubdivisions + 1),
+        size: sizeof['vec4'] * indices.length,
         usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+    });
+    device.queue.writeBuffer(indicesBuffer, 0, indices);
+
+    // Uniform buffer
+    const uniformBuffer = device.createBuffer({
+        size: 4 * 8 + sizeof['mat4'],
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
     const bgcolor = vec4(0.3921, 0.5843, 0.9294, 1.0) // Cornflower
@@ -188,19 +131,13 @@ async function main() {
         0.0, 0.0, 0.0, 1.0
     )
 
-    const center = translate(0, 0, 0);
-    const M = center;
+    const M = mult(translate(0, -0.5, 0), scalem(0.8, 0.8, 0.8));
 
     let projection = perspective(45, canvas.width / canvas.height, 0.1, 100);
     projection = mult(Mst, projection);
 
     const r = 4;
     let angle = 0;
-
-    const uniformBuffer = device.createBuffer({
-        size: 4 * 8 + sizeof['mat4'],
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
 
     // Load WGSL code
     const wgslfile = document.getElementById('wgsl').src;
@@ -218,7 +155,7 @@ async function main() {
         vertex: {
             module: wgsl,
             entryPoint: 'main_vs',
-            buffers: [positionBufferLayout],
+            buffers: [positionBufferLayout, colorBufferLayout, normalBufferLayout],
         },
         fragment: {
             module: wgsl,
@@ -277,8 +214,6 @@ async function main() {
         ]);
         device.queue.writeBuffer(uniformBuffer, 0, uniformFloats);
         device.queue.writeBuffer(uniformBuffer, 4 * 8, flatten(mvp));
-        device.queue.writeBuffer(positionBuffer, 0, flatten(positions));
-        device.queue.writeBuffer(indicesBuffer, 0, indices);
 
         // Create a render pass in a command buffer and submit it
         const encoder = device.createCommandEncoder();
@@ -302,6 +237,8 @@ async function main() {
         pass.setPipeline(pipeline);
         pass.setIndexBuffer(indicesBuffer, 'uint32');
         pass.setVertexBuffer(0, positionBuffer);
+        pass.setVertexBuffer(1, colorBuffer);
+        pass.setVertexBuffer(2, normalBuffer);
         pass.setBindGroup(0, bindGroup);
         pass.drawIndexed(indices.length);
 

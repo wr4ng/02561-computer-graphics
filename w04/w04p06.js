@@ -314,10 +314,7 @@ async function main() {
     function animate(timestamp) {
         angle += (timestamp - lastTime) * 0.0025;
         lastTime = timestamp;
-        const eye = vec3(r * Math.sin(angle), 0, r * Math.cos(angle));
-        const V = lookAt(eye, vec3(0, 0, 0), vec3(0, 1, 0));
-        const mvp = mult(projection, mult(V, M));
-        device.queue.writeBuffer(uniformBuffer, 0, flatten(mvp));
+
         render();
         if (shouldAnimate) {
             requestAnimationFrame(animate);
