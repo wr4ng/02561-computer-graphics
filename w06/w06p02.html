@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>W06P02</title>
+  <script type="text/javascript" src="../MV.js"></script>
+  <script type="text/javascript" src="w06p02.js"></script>
+  <script id="wgsl" type="x-shader" src="w06p02.wgsl"></script>
+  <script type="text/javascript" src="../common/genmipmap.js"></script>
+  <style>
+    body {
+      font-size: large;
+    }
+
+    button {
+      font-size: large;
+    }
+
+    .flex {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .center {
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="flex">
+    <canvas id="my-canvas" width="512" height="512">
+      Please use a browser that supports HTML5 canvas.
+    </canvas>
+    <div class="flex" style="flex-direction: column;">
+      <div>
+        <label for="texture-wrapping">Texture wrapping:</label>
+        <select id="texture-wrapping">
+          <option value="clamp-to-edge">Clamp-to-edge</option>
+          <option value="repeat" selected>Repeat</option>
+        </select>
+      </div>
+      <div>
+        <label for="mag-filter">Magnification filter:</label>
+        <select id="mag-filter">
+          <option value="nearest" selected>Nearest</option>
+          <option value="linear">Linear</option>
+        </select>
+      </div>
+      <div>
+        <label for="min-filter">Minification filter:</label>
+        <select id="min-filter">
+          <option value="nearest" selected>Nearest</option>
+          <option value="linear">Linear</option>
+        </select>
+      </div>
+      <div>
+        <label for="toggle-mipmap">Enable Mipmapping</label>
+        <input type="checkbox" id="toggle-mipmap" checked />
+      </div>
+      <div>
+        <label for="mipmap-filter">Mipmap filter:</label>
+        <select id="mipmap-filter">
+          <option value="nearest" selected>Nearest</option>
+          <option value="linear">Linear</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
