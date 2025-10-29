@@ -98,39 +98,10 @@ async function main() {
     ]);
 
     const initialSubdivisions = 6;
+    const maxSubdivisions = 8;
     for (let i = 0; i < initialSubdivisions; ++i) {
         indices = new Uint32Array(subdivideSphere(positions, indices));
     }
-
-    const maxSubdivisions = 8;
-    const minSubdivisions = 0;
-    let subdivisions = initialSubdivisions;
-    let calculatedSubdivisions = subdivisions;
-    const valueText = document.getElementById('value');
-    valueText.textContent = subdivisions;
-
-    document.getElementById('plus').onclick = () => {
-        if (subdivisions < maxSubdivisions) {
-            subdivisions++;
-            valueText.textContent = subdivisions;
-            if (subdivisions > calculatedSubdivisions) {
-                indices = new Uint32Array(subdivideSphere(positions, indices));
-                calculatedSubdivisions++;
-            } else {
-                indices = new Uint32Array(subdivideIndices(indices));
-            }
-            requestAnimationFrame(render);
-        }
-    };
-    document.getElementById('minus').onclick = () => {
-        if (subdivisions > minSubdivisions) {
-            subdivisions--;
-            valueText.textContent = subdivisions;
-            indices = new Uint32Array(courseIndices(indices));
-            requestAnimationFrame(render);
-        }
-    };
-    valueText.textContent = subdivisions;
 
     let shouldAnimate = false;
     document.getElementById('toggle-animate').onclick = () => {
