@@ -242,10 +242,10 @@ async function main() {
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    function render() {
+    let texture;
+    function updateTextureRender() {
         const options = getOptions();
-
-        var texture = device.createTexture({
+        texture = device.createTexture({
             size: [img.width, img.height, 1],
             format: "rgba8unorm",
             mipLevelCount: options.mipmapEnabled ? numMipLevels(img.width, img.height) : 1,
@@ -267,7 +267,10 @@ async function main() {
             magFilter: options.magFilter,
             mipmapFilter: options.mipmapFilter,
         });
+    }
+    updateTextureRender();
 
+    function render() {
         const bindGroup = device.createBindGroup({
             layout: pipeline.getBindGroupLayout(0),
             entries: [
@@ -314,26 +317,23 @@ async function main() {
         device.queue.submit([encoder.finish()]);
     }
 
-    function updateTextureRender() {
-
-    }
-
     let lastTime = performance.now();
 
     function animate(timestamp) {
         angle += (timestamp - lastTime) * 0.0025;
         lastTime = timestamp;
-        const eye = vec3(r * Math.sin(angle), 0, r * Math.cos(angle));
-        const V = lookAt(eye, vec3(0, 0, 0), vec3(0, 1, 0));
-        const mvp = mult(projection, mult(V, M));
-        device.queue.writeBuffer(uniformBuffer, 0, flatten(mvp));
         render();
         if (shouldAnimate) {
             requestAnimationFrame(animate);
         }
     }
 
-    setupInputListeners(render);
+    function updateAndRender() {
+        updateTextureRender();
+        render();
+    }
+
+    setupInputListeners(updateAndRender);
     render();
 }
 

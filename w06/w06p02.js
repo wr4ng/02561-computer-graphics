@@ -193,8 +193,6 @@ async function main() {
 
     function render() {
         const input = getOptions();
-        console.log(input);
-        console.log(mipLevelCount)
 
         var texture = device.createTexture({
             size: [texSize, texSize, 1],
@@ -212,13 +210,14 @@ async function main() {
             generateMipmap(device, texture);
         }
 
-        texture.sampler = device.createSampler({
+        const descriptor = {
             addressModeU: input.wrappingMode,
             addressModeV: input.wrappingMode,
             minFilter: input.minFilter,
             magFilter: input.magFilter,
             mipmapFilter: input.mipmapFilter,
-        });
+        };
+        texture.sampler = device.createSampler(descriptor);
 
         const bindGroup = device.createBindGroup({
             layout: pipeline.getBindGroupLayout(0),

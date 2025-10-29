@@ -21,5 +21,5 @@ fn main_vs(@location(0) inPos: vec4f, @location(1) texCoord: vec2f, @builtin(ins
 
 @fragment
 fn main_fs(@location(0) texCoords: vec2f) -> @location(0) vec4f {
-    return textureSampleLevel(ourTexture, ourSampler, texCoords, 3);
+    return textureSample(ourTexture, ourSampler, texCoords); // Mipmapping texture selecting is automatic
 }

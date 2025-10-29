@@ -34,6 +34,6 @@ fn main_fs(@location(0) inPos: vec4f) -> @location(0) vec4f {
     const omega_i = - l_e;
     const L_e = vec3f(1, 1, 1);
 
-    let L_d = texColor.xyz * L_e * max(dot(n, omega_i), 0.0);
+    let L_d = texColor.xyz * L_e * max(dot(n, omega_i), 0.0) + 0.4 * texColor.xyz; // Add ambient term to be able to see texture on opposite side
     return vec4f(L_d, 1.0);
 }
