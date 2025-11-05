@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>W08P02</title>
+  <script type="text/javascript" src="../MV.js"></script>
+  <script type="text/javascript" src="w08p02.js"></script>
+  <script id="wgsl" type="x-shader" src="w08p02.wgsl"></script>
+  <style>
+    body {
+      font-size: large;
+    }
+
+    button {
+      font-size: large;
+    }
+
+    .flex {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .center {
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="flex">
+    <canvas id="my-canvas" width="512" height="512">
+      Please use a browser that supports HTML5 canvas.
+    </canvas>
+    <div class="flex" style="flex-direction: column;">
+      <button id="toggle-animate">Animate</button>
+    </div>
+</body>
+
+</html>
