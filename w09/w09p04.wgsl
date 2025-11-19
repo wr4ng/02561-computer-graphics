@@ -44,11 +44,14 @@ fn main_vs_ground(@location(0) inPos: vec4f, @location(3) texCoord: vec2f, @buil
 fn main_fs_ground(@location(0) texCoords: vec2f, @location(1) inPos: vec4f) -> @location(0) vec4f {
     let p_clip_l = uniforms.lightViewProj * inPos;
     let shadowCoords = (p_clip_l.xyz / p_clip_l.w) * vec3f(0.5, -0.5, 1.0) + vec3f(0.5, 0.5, 0.0);
+
+    let z_light = shadowCoords.z;
     var depth = textureLoad(shadowTexture, vec2u(shadowCoords.xy * vec2f(2048, 2048)), 0);
+    // depth = select(vec4f(1.0), depth, depth.r > 0.00001); // Avoid shadows outside light view
+    let visibility = select(1.0, 0.4, depth.r < z_light - 0.001);
 
-    let texColor = textureSample(ourTexture, ourSampler, texCoords); // TEMP
-
-    return vec4f(depth.rgb, 1.0);
+    let texColor = textureSample(ourTexture, ourSampler, texCoords);
+    return vec4f((texColor.rgb * visibility), texColor.a);
 }
 
 // TEAPOT
@@ -61,7 +64,6 @@ struct VSOut {
 
 @vertex
 fn main_vs_teapot(@location(0) inPos: vec4f, @location(1) color: vec4f, @location(2) normal: vec4f, @builtin(instance_index) instance: u32) -> VSOut {
-    let x = textureLoad(shadowTexture, vec2u(vec2f(0, 0) * vec2f(1024, 1024)), 0); // TEMP
     var vsOut: VSOut;
     vsOut.position = uniforms.mvp * inPos;
     vsOut.inPos = inPos;
@@ -73,6 +75,13 @@ fn main_vs_teapot(@location(0) inPos: vec4f, @location(1) color: vec4f, @locatio
 @fragment
 fn main_fs_teapot(@location(0) inPos: vec4f, @location(1) color: vec4f, @location(2) normal: vec4f) -> @location(0) vec4f {
     let n = normalize(normal.xyz);
+
+    // Visibility
+    let p_clip_l = uniforms.lightViewProj * uniforms.model * inPos;
+    let shadowCoords = (p_clip_l.xyz / p_clip_l.w) * vec3f(0.5, -0.5, 1.0) + vec3f(0.5, 0.5, 0.0);
+    let z_light = shadowCoords.z;
+    var depth = textureLoad(shadowTexture, vec2u(shadowCoords.xy * vec2f(2048, 2048)), 0);
+    let visibility = select(1.0, 0.4, depth.r < z_light - 0.005);
 
     // Fixed diffuse and specular color
     let k_d = vec3f(1) * uniforms.k_d;
@@ -99,7 +108,7 @@ fn main_fs_teapot(@location(0) inPos: vec4f, @location(1) color: vec4f, @locatio
     let L_P_rs_select = select(vec3f(0, 0, 0), L_P_rs, dot(n, omega_i) > 0.0);
 
     let L_o = L_rd + L_ra + L_P_rs_select;
-    return vec4f(L_o, 1.0);
+    return vec4f(L_o * visibility, 1.0);
 }
 
 @vertex
