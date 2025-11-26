@@ -235,6 +235,7 @@ async function main() {
         event.preventDefault();
         const mode = getCameraMode();
         if (mode === "orbit") {
+            spin = false;
             u = mapEventCoordsToSphere(event);
             startTime = Date.now();
         }
