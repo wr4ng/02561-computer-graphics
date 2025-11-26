@@ -24,11 +24,11 @@ fn main_vs(@location(0) inPos: vec4f, @builtin(instance_index) instance: u32) ->
 
 @fragment
 fn main_fs(@location(0) inPos: vec4f) -> @location(0) vec4f {
-    let u = 1/2 - atan2(inPos.z, inPos.x) / (2 * pi);
-    let v = 1/2 + acos(inPos.y) / pi;
-    let texColor = textureSample(myTexture, mySampler, vec2f(u, v));
-
     let n = normalize(inPos.xyz);
+
+    let u = 1/2 - atan2(n.z, n.x) / (2 * pi);
+    let v = acos(n.y) / pi;
+    let texColor = textureSample(myTexture, mySampler, vec2f(u, v));
 
     const l_e = vec3f(0, 0, - 1);
     const omega_i = - l_e;
