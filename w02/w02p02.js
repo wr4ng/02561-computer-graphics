@@ -57,6 +57,7 @@ async function main() {
     // Clear canvas
     document.getElementById("clear-button").onclick = function () {
         positions = [];
+        colors = [];
         index = 0;
         bgcolor = colorValues[clearSelect.value];
         requestAnimationFrame(render);
