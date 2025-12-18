@@ -72,8 +72,14 @@
     </div>
   </div>
   <p>
-    TODO: Compare projection shadows to shadow mapping by listing advantages and disadvantages of the two
-    techniques.
+    Shadow mapping has the advantage that is can be applied to non-plane surfaces,
+    as the depth comparison is done without regard for the geometry. However,
+    the shadows appearance is highly dependent on the resolution of the shadow map and how well the object fits within the shadow camera field of view. This can make the shadow pixelated (which can be helped by aliasing).
+    It can also be more expensive to render, since it requires rendering the scane from the lights POV.
+    <br>
+    <br>
+    Projection shadows are less expensive to render, since it is part of the same render pass. It does however scale more with the amount of geometry, as the object is projected onto the shadow plane. It also only workds for planer surfaces which is a big limitiation.
+    It can also cause issues if you want semi-transparent shadows, as multiple triangles can be projected to the same area on the shadow plane, leading to overlap. This can be solved using alpha-blending and a stencil to avoid drawing multiple times.
   </p>
 </body>
 
