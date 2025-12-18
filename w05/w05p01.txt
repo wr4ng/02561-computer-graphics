@@ -1,0 +1,2 @@
+For part 1 and 2 of this worksheet, see https://www.student.dtu.dk/~s224784/02561-computer-graphics/worksheets/w05/w05p03.html
+This shows part 3 of this worksheet uploaded to my student website along with my 3D model (a modified version of the Blender monkey).
